@@ -1,0 +1,17 @@
+[project]
+name = "aicodeassistant"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "black>=25.1.0",
+    "dotenv>=0.9.9",
+    "langchain>=0.3.26",
+    "langchain-community>=0.3.27",
+    "langchain-core>=0.3.68",
+    "langchain-groq>=0.3.6",
+    "langchain-openai>=0.3.28",
+    "langgraph>=0.5.2",
+    "pathspec>=0.12.1",
+]
