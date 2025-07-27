@@ -1,6 +1,6 @@
 from langchain_core.prompts import MessagesPlaceholder
 
-analyse_update_system_prompt = [
+analyse_update_prompt = [
     (
         "system",
         """

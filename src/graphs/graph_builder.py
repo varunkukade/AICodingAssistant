@@ -3,7 +3,6 @@ from src.states.code_assistant_state import CodeAssistantState
 from langgraph.checkpoint.memory import InMemorySaver
 from src.nodes.code_assistant_nodes import CodeAssistantNodes
 
-
 class GraphBuilder:
     def __init__(self, llm):
         self.graph = StateGraph(CodeAssistantState)

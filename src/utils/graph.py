@@ -30,15 +30,15 @@ def handle_interrupt(
 
 
 def get_files_to_reverse(
-    original_files: list[File], new_files: list[File]
+    files_before_llm_update: list[File], files_after_llm_update: list[File]
 ) -> list[File]:
     final_files: list[File] = []
     # Add all old files to final list
-    final_files.extend(original_files)
+    final_files.extend(files_before_llm_update)
     # Create a set of (file_name, file_path) for quick lookup
-    old_file_keys = set((f.file_name, f.file_path) for f in original_files)
+    old_file_keys = set((f.file_name, f.file_path) for f in files_before_llm_update)
     # Check for new files
-    for file in new_files:
+    for file in files_after_llm_update:
         key = (file.file_name, file.file_path)
         if key not in old_file_keys:
             # It's a new file, add it with empty content

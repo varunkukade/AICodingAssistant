@@ -5,7 +5,6 @@ from src.utils.api_key import get_api_key
 
 class OpenAIProvider:
     def __init__(self, model_name: str):
-
         # Load environment variables
         load_dotenv()
         self.model_name = model_name

@@ -55,8 +55,11 @@ class CodeAssistantNodes:
             if not file.file_name:
                 continue
             result = check_file_ambiguity(file)
-            if result.get("is_ambiguous", False):
-                ambiguous_files.append((file.file_name, result.get("valid_paths", [])))
+            if result.get("is_ambiguous", True) or result.get("is_ambigious_and_invalid_file_path", True):
+                user_provided_path = (
+                    file.file_path if result.get("is_ambigious_and_invalid_file_path", False) else None
+                )
+                ambiguous_files.append((file.file_name, result.get("valid_paths", []), user_provided_path))
 
         # If there are ambiguous files, prompt the user
         if ambiguous_files:

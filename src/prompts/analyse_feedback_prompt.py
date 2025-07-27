@@ -1,4 +1,4 @@
-analyse_feedback_system_prompt = [
+analyse_feedback_prompt = [
     (
         "system",
         """
@@ -25,6 +25,7 @@ analyse_feedback_system_prompt = [
             ### `human_feedback`:
             {human_feedback}
 
+            Your Role:
             Your task is to analyse the human feedback and return updated files.
 
 
@@ -53,8 +54,8 @@ analyse_feedback_system_prompt = [
             
             Now based on 'human_feedback' one or more of the following scenarios can occur:
 
-            1. **Valid Path Confirmation and No Additional queries:**  
-            Human can respond with valid file paths for the given files in natural language and no additional queries.  
+            1. **Valid Path Confirmation**  
+            Human can respond with valid file paths for the given files in natural language.
             → Your task is to match those paths correctly to each file name.  
             → For each file, return an object with:
             - `file_name`: confirmed file name  

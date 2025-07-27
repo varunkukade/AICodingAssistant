@@ -1,6 +1,6 @@
 from langchain_core.prompts import MessagesPlaceholder
 
-decode_system_prompt = [
+decode_prompt = [
     (
         "system",
         """
@@ -78,7 +78,7 @@ decode_system_prompt = [
                 - "file_name": the name of the file.
                 - "content": always set this to an empty string ("") — no need to generate actual file content.
                 - "exists": for now assume each file already exist and return true for all files
-                - "file_path": for now set this to an empty string ("").
+                - "file_path": If user has already mentioned the file path, return it. Otherwise, return an empty string ("").
             
             Notes:
             Existing files list data can be empty or non empty.
@@ -87,6 +87,7 @@ decode_system_prompt = [
                 - don't apply "Non-dead-end flow files schema" to any of the existing files.
                 - If you detect new file to add, append those to the list at the end while applying "Non-dead-end flow files schema". But don't override existing list.
             2. If existing files list is empty, construct new files and append them to empty list while applying "Non-dead-end flow files schema".
+             
 
             Some rules to follow:
             - Include a file only if the user is asking to read, understand, analyse or modify, create, add, update, write something inside it.

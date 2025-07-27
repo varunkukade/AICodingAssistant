@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # messages = [HumanMessage(content="Can you refactor the code in refactor.py and add tests for it?")]
 
     # Asks for human feedback after passing ambigious file paths input
-    messages = [HumanMessage(content="Can you add addition code inside index.py?")]
+    messages = [HumanMessage(content="Can you add addition code inside /Users/vkukade/Documents/AgenticAI/AICodeAssistant/prompt_templatess/index.py?")]
     request = {
         "messages": messages,
     }
