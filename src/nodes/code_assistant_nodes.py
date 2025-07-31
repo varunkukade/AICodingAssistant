@@ -70,6 +70,7 @@ class CodeAssistantNodes:
                 {"question": file_path_confirmation_prompt, "from": "human_feedback"}
             )
             return Command(
+                goto="analyse_feedback",
                 update={
                     "file_path_confirmation_prompt": file_path_confirmation_prompt,
                     "human_feedback": feedback,
@@ -78,6 +79,7 @@ class CodeAssistantNodes:
             )
         else:
             return Command(
+                goto="fetch_files",
                 update={
                     "file_path_confirmation_prompt": None,
                     "human_feedback": None,
@@ -166,15 +168,19 @@ class CodeAssistantNodes:
         summary_parts = []
 
         if found_files:
+            val = len(found_files) > 1 and "s" or ""
             summary_parts.append(
-                f"I found these file{len(found_files) > 1 and 's' or ''} - {', '.join(found_files)}."
+                f"I found the file{val} - {', '.join(found_files)}."
+            )
+            summary_parts.append(
+                f"Please wait a moment.. Let me analyse the file{val}."
             )
 
         if missing_files:
             summary_parts.append(
                 f"I couldn't find these file{len(missing_files) > 1 and 's' or ''} - {', '.join(missing_files)}."
             )
-
+        
         summary = "\n".join(summary_parts)
         return {"files": state.files, "summary": summary}
 
@@ -187,11 +193,21 @@ class CodeAssistantNodes:
                 "formatted_files": formatted_files,
             }
         )
-        return {
-            "files": llm_output.files,
-            "summary": llm_output.summary,
-            "is_update": llm_output.is_update,
-        }
+        if llm_output.is_update:
+            return Command(
+                goto="update_file",
+                update={
+                    "files": llm_output.files,
+                    "summary": llm_output.summary,
+                },
+            )
+        return Command(
+            goto="__end__",
+            update={
+                "files": llm_output.files,
+                "summary": llm_output.summary,
+            },
+        )
 
     def update_file(self, state: CodeAssistantState):
         for file in state.files:
@@ -231,11 +247,15 @@ class CodeAssistantNodes:
             state_before_llm_call.values["files"], state_after_llm_call.values["files"]
         )
         if decision == "accept":
-            return Command(goto="approved_path", update={"decision": "accepted"})
+            return Command(
+                goto="approved_path", 
+            )
         else:
             return Command(
                 goto="rejected_path",
-                update={"decision": "rejected", "files": files_to_reverse},
+                update={
+                    "files": files_to_reverse,
+                },
             )
 
     def approved_path(self, state: CodeAssistantState):

@@ -8,17 +8,6 @@ class GraphBuilder:
         self.graph = StateGraph(CodeAssistantState)
         self.llm = llm
 
-    # Function to determine next node
-    def __should_continue(self, state: CodeAssistantState) -> str:
-        if state.is_update:
-            return "update_file"
-        return END
-
-    def __go_to(self, state: CodeAssistantState) -> str:
-        if state.human_feedback:
-            return "analyse_feedback"
-        return "fetch_files"
-
     def build_code_assistant_graph(self):
         code_assistant_nodes = CodeAssistantNodes(self.llm)
         self.graph.add_node("decode_files", code_assistant_nodes.decode_files)
@@ -33,14 +22,7 @@ class GraphBuilder:
 
         # Add edges to the graph
         self.graph.add_edge(START, "decode_files")
-
-        self.graph.add_conditional_edges("human_feedback", self.__go_to)
-
         self.graph.add_edge("fetch_files", "llm_call")
-        self.graph.add_conditional_edges(
-            "llm_call",
-            self.__should_continue,
-        )
         self.graph.add_edge("update_file", "human_approval")
         self.graph.add_edge("approved_path", END)
         self.graph.add_edge("rejected_path", END)
