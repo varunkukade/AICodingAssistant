@@ -10,20 +10,27 @@ from src.models.llm_analyse_edit_output import LLMAnalyseEditOutput
 from src.models.decode_file_name import DecodeFileNameOutput
 from src.models.analyse_human_feedback import AnalyseHumanFeedbackOutput
 from src.utils.graph import get_files_to_reverse
-
-
+from langgraph.runtime import Runtime
+from src.llm_providers.openai import OpenAIProvider
+from src.context_schema.code_assistant_context_schema import CodeAssistantContextSchema
 class CodeAssistantNodes:
-    def __init__(self, llm):
-        self.llm = llm
-        self.code_assistant_chains = CodeAssistantChains(llm)
+    def __init__(self):
+        self.code_assistant_chains = CodeAssistantChains()
+        self.llm = None
+
+    def prepare_llm(self, state: CodeAssistantState, runtime: Runtime[CodeAssistantContextSchema]):
+        requested_llm = getattr(runtime, "context", {}).get("model_provider", "")
+        requested_model = getattr(runtime, "context", {}).get("model_name", "")
+        if requested_llm == "openai":
+            self.llm = OpenAIProvider(model_name=requested_model).get_llm()
 
     def decode_files(self, state: CodeAssistantState):
         if state.files:
             formatted_files = format_files_for_prompt(state.files)
         else:
-            formatted_files = []
+            formatted_files = []        
         decode_file_name_chain = (
-            self.code_assistant_chains.create_decode_file_name_chain()
+            self.code_assistant_chains.create_decode_file_name_chain(self.llm)
         )
         decoded_files: DecodeFileNameOutput = decode_file_name_chain.invoke(
             {
@@ -89,7 +96,7 @@ class CodeAssistantNodes:
     def analyse_feedback(self, state: CodeAssistantState):
         formatted_files = format_files_for_prompt(state.files)
         analyse_feedback_chain = (
-            self.code_assistant_chains.create_analyse_feedback_chain()
+            self.code_assistant_chains.create_analyse_feedback_chain(self.llm)
         )
         analyse_human_feedback_output: AnalyseHumanFeedbackOutput = (
             analyse_feedback_chain.invoke(
@@ -186,7 +193,7 @@ class CodeAssistantNodes:
 
     def llm_call(self, state: CodeAssistantState):
         formatted_files = format_files_for_prompt(state.files)
-        analyse_update_chain = self.code_assistant_chains.create_analyse_update_chain()
+        analyse_update_chain = self.code_assistant_chains.create_analyse_update_chain(self.llm)
         llm_output: LLMAnalyseEditOutput = analyse_update_chain.invoke(
             {
                 "messages": state.messages,

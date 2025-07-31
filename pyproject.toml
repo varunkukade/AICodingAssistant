@@ -12,6 +12,6 @@ dependencies = [
     "langchain-core>=0.3.68",
     "langchain-groq>=0.3.6",
     "langchain-openai>=0.3.28",
-    "langgraph>=0.5.2",
+    "langgraph==0.6.0",
     "pathspec>=0.12.1",
 ]

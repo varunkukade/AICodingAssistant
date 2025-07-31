@@ -2,14 +2,14 @@ from langgraph.graph import END, START, StateGraph
 from src.states.code_assistant_state import CodeAssistantState
 from langgraph.checkpoint.memory import InMemorySaver
 from src.nodes.code_assistant_nodes import CodeAssistantNodes
-
+from src.context_schema.code_assistant_context_schema import CodeAssistantContextSchema
 class GraphBuilder:
-    def __init__(self, llm):
-        self.graph = StateGraph(CodeAssistantState)
-        self.llm = llm
+    def __init__(self):
+        self.graph = StateGraph(CodeAssistantState, context=CodeAssistantContextSchema)
 
     def build_code_assistant_graph(self):
-        code_assistant_nodes = CodeAssistantNodes(self.llm)
+        code_assistant_nodes = CodeAssistantNodes()
+        self.graph.add_node("prepare_llm", code_assistant_nodes.prepare_llm)
         self.graph.add_node("decode_files", code_assistant_nodes.decode_files)
         self.graph.add_node("human_feedback", code_assistant_nodes.human_feedback)
         self.graph.add_node("analyse_feedback", code_assistant_nodes.analyse_feedback)
@@ -21,7 +21,8 @@ class GraphBuilder:
         self.graph.add_node("rejected_path", code_assistant_nodes.rejected_path)
 
         # Add edges to the graph
-        self.graph.add_edge(START, "decode_files")
+        self.graph.add_edge(START, "prepare_llm")
+        self.graph.add_edge("prepare_llm", "decode_files")
         self.graph.add_edge("fetch_files", "llm_call")
         self.graph.add_edge("update_file", "human_approval")
         self.graph.add_edge("approved_path", END)
