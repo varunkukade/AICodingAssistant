@@ -7,6 +7,9 @@ class CodeAssistantTemplates:
     def __init__(self):
         self.code_assistant_prompts = CodeAssistantPrompts()
 
+    def __fetch_strategic_planner_prompt(self):
+        return self.code_assistant_prompts.fetch_strategic_planner_prompt()
+
     def __fetch_decode_prompt(self):
         return self.code_assistant_prompts.fetch_decode_prompt()
 
@@ -18,6 +21,10 @@ class CodeAssistantTemplates:
 
     def __create_prompt_template(self, messages: List[tuple]) -> ChatPromptTemplate:
         return ChatPromptTemplate.from_messages(messages)
+
+    def get_strategic_planner_prompt_template(self):
+        strategic_planner_prompt = self.__fetch_strategic_planner_prompt()
+        return self.__create_prompt_template(strategic_planner_prompt)
 
     def get_decode_prompt_template(self):
         decode_prompt = self.__fetch_decode_prompt()

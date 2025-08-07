@@ -1,12 +1,21 @@
 from src.models.decode_file_name import DecodeFileNameOutput
 from src.models.analyse_human_feedback import AnalyseHumanFeedbackOutput
 from src.models.llm_analyse_edit_output import LLMAnalyseEditOutput
+from src.models.strategic_planner_output import StrategicPlannerOutput
 from src.prompt_templates.code_assistant_templates import CodeAssistantTemplates
 
 
 class CodeAssistantChains:
     def __init__(self):
         self.code_assistant_templates = CodeAssistantTemplates()
+
+    def create_strategic_planner_chain(self, llm):
+        strategic_planner_prompt_template = (
+            self.code_assistant_templates.get_strategic_planner_prompt_template()
+        )
+        return strategic_planner_prompt_template | llm.with_structured_output(
+            StrategicPlannerOutput
+        )
 
     def create_decode_file_name_chain(self, llm):
         decode_prompt_template = (
