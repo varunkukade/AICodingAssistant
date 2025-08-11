@@ -54,7 +54,6 @@ strategic_planner_prompt = [
               ✅ You MUST retain all steps from step number 1 to (`step_number_to_replan_from` - 1) step number.
               ✅ You MUST discard all steps starting at `step_number_to_replan_from` step (if exists) and beyond.
               ✅ Then you MUST replan only from `step_number_to_replan_from` step onward, using the updated context.
-              ✅ If there are multiple human queries in the messages list, treat them as a continuation of the same conversation. DO NOT generate a parallel or overlapping plan. Instead, understand how the newly added queries modify or extend the prior goal, and then append new steps after the retained ones to handle those additions.
               ✅ The final plan must look like: [KEPT_STEPS..., NEWLY_PLANNED_STEPS...]
 
         - You will also receive additional key-value pairs, which are outputs from earlier tools. Make use of this information only for replanning and not for planning from scratch.
@@ -83,9 +82,9 @@ strategic_planner_prompt = [
         
         3. analyse_feedback
         Purpose: After user mentions the file paths we asked for in "resolve_ambiguity", this tool analyse the user's feedback. 
-        It also asks user to mention any additional queries it has.
+        It also asks user to mention any additional queries user have.
         If user also mentions some additional queries, this tool returns those additional queries inside 'messages'. 
-        In case of any additional queries, we need to again execute `decode_files`.
+        In case of any additional queries, we need to again execute `decode_files` and revise the plan further.
 
         4. fetch_files
         Purpose: Once we have all file names without any ambiguity, this tool fetches real content from disk for each file.
@@ -127,13 +126,14 @@ strategic_planner_prompt = [
         ### 2. "Add subtraction function to test.py"
         - Call `decode_files` → `fetch_files` → `llm_call` → `update_file`→ `human_approval`
 
-        **Query is unrelated to file-level analysis/editing**:  
-            Examples:  
-            - “What is the weather today?”  
-            - “How does ChatGPT work?”  
-            - Other internet or general queries  
-            Saying “Hi”, “Hello” is okay.
-            ➤ We check this inside `decode_files` tool already hence you can safely return this as next step inside plan.
+        Note:
+        1. If query is unrelated to file-level analysis/editing, return `decode_files` as next step inside plan. 
+        Examples:
+        - “What is the weather today?”  
+        - “How does ChatGPT work?”  
+        - Other internet or general queries  
+        Saying “Hi”, “Hello” is okay.
+        2. If you couldn't understand query/is out of scope/any other reason you couldn't create a plan for it, return `decode_files` as next step inside plan. 
 
         ## FINAL NOTE:
         However the complex is query, think of very simple flow first and return that sequence. 
